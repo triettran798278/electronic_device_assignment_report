@@ -257,6 +257,45 @@ High negative voltage & Conducts in reverse, clamps voltage \\
 \subsection{Using the 74HC595 IC to design a display circuit for showing values on four 7-segment LEDs}
 
 
+\subsubsection*{Objective}
+The objective of this circuit is to control \textbf{four 7-segment LED displays} using the \textbf{74HC595 shift register}, thereby reducing the number of I/O pins required from the microcontroller by applying the \textbf{multiplexing technique}.
+
+\subsubsection*{Operating Principle}
+Each 7-segment display requires eight control signals corresponding to segments \textit{a, b, c, d, e, f, g} and the decimal point (\textit{dp}). Since a single 74HC595 provides only eight output pins, it is insufficient to drive four displays simultaneously.
+
+To solve this problem, the following architecture is used:
+\begin{itemize}
+    \item The \textbf{first 74HC595} controls the segment lines (\textit{a--g, dp}).
+    \item The \textbf{second 74HC595} controls the digit selection signals (\textit{sel0--sel3}).
+    \item The displays are driven using the \textbf{multiplexing (scanning)} method, where only one display is enabled at a time, but the switching speed is fast enough to appear continuous to the human eye.
+\end{itemize}
+
+The two 74HC595 ICs are connected in a \textbf{daisy-chain configuration} and share the same control signals: \texttt{DATA}, \texttt{CLK}, and \texttt{LATCH}.
+
+\subsubsection*{Circuit Connections}
+\begin{itemize}
+    \item The \texttt{SDI} pin of the first 74HC595 receives serial data from the microcontroller.
+    \item The \texttt{SDO} pin of the first IC is connected to the \texttt{SDI} pin of the second IC.
+    \item The \texttt{SH\_CP} (clock) and \texttt{ST\_CP} (latch) pins of both ICs are connected together.
+    \item Outputs Q0--Q7 of the first 74HC595 drive segments \textit{a--g} and \textit{dp} through 220~$\Omega$ current-limiting resistors.
+    \item Outputs of the second 74HC595 (\textit{sel0--sel3}) control NPN transistors that switch the common cathode (K) of each 7-segment display.
+    \item The \texttt{OE} pin is tied to ground to enable outputs permanently, while the \texttt{CLR} pin is tied to VCC to prevent unintended reset.
+\end{itemize}
+
+\subsubsection*{Display Scanning Algorithm}
+The microcontroller performs the following steps repeatedly:
+\begin{enumerate}
+    \item Disable all displays by clearing \textit{sel0--sel3}.
+    \item Shift the segment data (\textit{a--g, dp}) for the desired digit into the first 74HC595.
+    \item Shift the corresponding digit select signal into the second 74HC595.
+    \item Toggle the \texttt{LATCH} signal to update all outputs simultaneously.
+    \item Maintain the state for approximately 1--2~ms.
+    \item Repeat the process for the remaining digits.
+\end{enumerate}
+
+A sufficiently high scanning frequency ensures stable display output without visible flickering.
+
+
 
 
 
