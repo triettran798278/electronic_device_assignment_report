@@ -1,0 +1,263 @@
+\section{Answer to Questions}
+\subsection{Research on Current Sensors}
+Research on the Internet and list 5 different current sensors that you can find. Along with each current sensor, please: 
+
+(1) Give a reference source. 
+
+(2) Give the maximum current that the sensor can measure. 
+
+(3) Explain how to obtain its values (e.g, using ADC, UART, I2C or SPI and so on).
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{6pt}
+
+\begin{tabularx}{\linewidth}{|
+>{\raggedright\arraybackslash}p{2.8cm}|
+>{\raggedright\arraybackslash}p{3.2cm}|
+>{\raggedright\arraybackslash}p{3.6cm}|
+>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Current Sensor} & \textbf{Max Current} & \textbf{Interface} & \textbf{Source} \\
+\hline
+
+WCM3720A & 20\,A & Digital (UART) &
+\url{https://evelta.com/wcm3720a-12v-20a-ac-current-sensor-module-digital-data-output-uart/} \\
+\hline
+
+ACS758 &
+$\pm 50$\,A, $\pm 100$\,A, $\pm 150$\,A, $\pm 200$\,A (IC-dependent) &
+Analog &
+\url{https://www.alldatasheet.vn/datasheet-pdf/pdf/533456/ALLEGRO/ACS758_13.html} \\
+\hline
+
+INA219 &
+Up to $\approx 3.2$\,A (module-dependent) &
+I$^2$C &
+\url{https://www.ti.com/product/INA219} \\
+\hline
+
+ACS712 &
+$\approx \pm 8$\,A (some modules claim $\pm 20$\,A) &
+Analog (ADC) &
+\url{https://www.allegromicro.com/-/media/files/datasheets/acs712-datasheet.ashx} \\
+\hline
+
+INA226 &
+30\,A (module-dependent) &
+I$^2$C &
+\url{https://www.ti.com/lit/ds/symlink/ina226.pdf} \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{SW1 Voltage in ON and OFF States}
+When SW1 OFF: $V_{SW1} = 3.3V$ because there is only a single current path.
+
+When SW1 ON: $V_{SW1} = 0V$ because current preferentially flows through paths with lower resistance, while the path from the $3.3\,\text{V}$ supply has a relatively high resistance of $10\,\text{k}\Omega$.
+
+\subsection{Voltage of ADC1\_CH7 and ADC1\_CH6}
+\subsection*{1. Voltage calculation at ADC1\_CH7 (Reference voltage)}
+
+The circuit uses op-amp U3B configured as a voltage follower (buffer).
+The non-inverting input (pin 5, $+$) is driven by a voltage divider formed by
+$R_5 = 1\,\text{k}\Omega$ and $R_8 = 1\,\text{k}\Omega$.
+
+\[
+V_{\text{ADC1\_CH7}} = V_{CC} \times \frac{R_8}{R_5 + R_8}
+= 3.3\,\text{V} \times \frac{1}{1 + 1}
+= 1.65\,\text{V}
+\]
+
+\subsection*{2. Voltage calculation at ADC1\_CH6 (Measured signal)}
+
+The input signal $\text{ADC\_IN}$ passes through a voltage divider consisting of
+$R_{11} = 1\,\text{k}\Omega$ and $R_{12} = 1\,\text{k}\Omega$ before entering the
+non-inverting input of op-amp U3A.
+Op-amp U3A is configured as a non-inverting amplifier.
+
+\begin{itemize}
+  \item Voltage at pin 3 (non-inverting input):
+  \[
+  V_{+} = V_{\text{ADC\_IN}} \times \frac{R_{14}}{R_{11} + R_{14}}
+  = 1.65\,\text{V} \times \frac{1}{1 + 1}
+  = 0.825\,\text{V}
+  \]
+
+  \item Amplifier gain:
+  \[
+  \text{Gain} = 1 + \frac{R_{16}}{R_{15}} = 1 + \frac{1}{1} = 2
+  \]
+
+  \item Output voltage:
+  \[
+  V_{\text{ADC1\_CH6}} = V_{+} \times \text{Gain}
+  = 0.825\,\text{V} \times 2
+  = 1.65\,\text{V}
+  \]
+\end{itemize}
+
+\subsection{Low-Pass Filter Design}
+
+Consider the signal at pin 3 of the LM358 op-amp (U3A) as shown in Figure~1.5.
+
+The equivalent circuit is:
+\[
+\text{ADC\_IN} \rightarrow R_{11} \,(1\,\text{k}\Omega) \rightarrow (R_{14} \parallel C_{12}) \rightarrow \text{GND}
+\]
+
+The cutoff frequency of the low-pass filter is given by:
+\[
+f_c = \frac{1}{2\pi} \times \frac{R_{11} + R_{14}}{R_{11} \times R_{14} \times C_{12}}
+\]
+
+Substituting the initial values:
+\[
+f_c =
+\frac{1}{2\pi}
+\times
+\frac{1000 + 1000}{1000 \times 1000 \times 100 \times 10^{-12}}
+\approx 3.18\,\text{MHz}
+\]
+
+Since the desired cutoff frequency is $f_c \approx 10\,\text{kHz}$, three approaches can be considered:
+
+\subsubsection*{Method 1: Reduce $C_{12}$ while keeping $R$ constant}
+
+\[
+C_{12} =
+\frac{1}{2\pi}
+\times
+\frac{R_{11} + R_{14}}{R_{11} \times R_{14} \times f_c}
+=
+\frac{1}{2\pi}
+\times
+\frac{1000 + 1000}{1000 \times 1000 \times 10 \times 10^{3}}
+\approx 3.18\,\text{nF}
+\]
+
+\subsubsection*{Method 2: Increase $R$ while keeping $C_{12}$ constant}
+
+\[
+R =
+\frac{R_{11} \times R_{14}}{R_{11} + R_{14}}
+=
+\frac{1}{2\pi \times f_c \times C_{12}}
+=
+\frac{1}{2\pi \times 10 \times 10^{3} \times 100 \times 10^{-12}}
+\approx 159\,\text{k}\Omega
+\]
+
+\subsubsection*{Method 3: Compromise between $R$ and $C$}
+
+\[
+R \times C_{12} =
+\frac{1}{2\pi \times f_c}
+=
+\frac{1}{2\pi \times 10 \times 10^{3}}
+\approx 1.59 \times 10^{-5}
+\]
+
+This approach allows proper scaling while avoiding excessively large resistor values
+or impractically small capacitor values.
+
+\subsection{LED Control}
+
+The LED is modeled using a diode in the simulation.
+The standard diode in PSpice has a forward voltage $V_f \approx 0.65\,\text{V}$.
+To emulate an LED with $V_f \approx 2\,\text{V}$, a DC voltage source of $1.45\,\text{V}$ is added in series
+for simulation convenience (not recommended in practical implementation).
+
+The current through each LED is calculated as:
+\[
+I = \frac{V_{CC} - V_f - V_{CE(\text{sat})}}{R}
+= \frac{3.3 - 2 - 0.2}{330}
+\approx 3.33\,\text{mA}
+\]
+
+If a $100\,\text{mW}$ LED is required, the following approaches can be considered:
+
+\begin{enumerate}
+  \item Use a constant-current driver.
+  \item Select a suitable transistor or MOSFET.
+  \item Adjust the circuit parameters as follows:
+\end{enumerate}
+
+We have:
+\[
+I = \frac{V_{CC} - V_f - V_{CE(\text{sat})}}{R}
+= \frac{V_{CC} - 2 - 0.2}{R}
+= \frac{100}{0.7}\,\text{mA}
+\]
+
+Thus:
+\[
+\frac{V_{CC} - 2 - 0.2}{R} = \frac{100}{0.7}
+\quad (\text{V} / \Omega)
+\]
+
+Possible solutions:
+\begin{itemize}
+  \item Reduce the resistor value $R$ while keeping $V_{CC}$ constant.
+  \item Increase the supply voltage $V_{CC}$ while keeping $R$ constant.
+  \item Increase $V_{CC}$ and reduce $R$ simultaneously.
+\end{itemize}
+
+
+\subsection{Role of Diode D2}
+
+\textbf{Normal operating condition:}
+\begin{itemize}
+  \item RS-485 operates with a differential voltage range of approximately
+  $-1.5\,\text{V}$ to $+5\,\text{V}$ (MAX485 tolerates up to $\pm5\,\text{V}$ on A/B lines).
+  \item When the voltage between A and B remains within this range,
+  the TVS diode behaves like an open circuit (non-conductive).
+\end{itemize}
+
+\[
+\Rightarrow \text{Result: No impact on RS-485 signal integrity.}
+\]
+
+\textbf{During overvoltage events (surge/ESD/lightning):}
+\begin{itemize}
+  \item If line A rises more than $+3.3\,\text{V}$ relative to line B,
+  the TVS diode enters breakdown mode:
+  \begin{itemize}
+    \item Current flows through the diode, clamping from A to B.
+    \item The voltage is limited to approximately $+1.5$ to $3.3\,\text{V}$ (clamping voltage).
+  \end{itemize}
+
+  \item If line A drops below $-1.5\,\text{V}$ relative to line B,
+  the diode conducts in the reverse direction and clamps the voltage.
+
+  \item If a large surge occurs relative to GND,
+  the diode conducts and diverts current to ground,
+  ensuring the voltage remains within safe limits for the MAX485.
+\end{itemize}
+
+\textbf{Conclusion:}
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Condition} & \textbf{Action of D2} \\
+\hline
+Low voltage & Non-conductive, no signal impact \\
+High positive voltage & Conducts, shunts surge to ground \\
+High negative voltage & Conducts in reverse, clamps voltage \\
+\hline
+\end{tabular}
+\end{center}
+
+\[
+\Rightarrow \text{Result: RS-485 lines are protected against overvoltage and ESD.}
+\]
+
+\subsection{Using the 74HC595 IC to design a display circuit for showing values on four 7-segment LEDs}
+
+
+
+
+
+

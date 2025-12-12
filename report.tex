@@ -1,0 +1,108 @@
+% 'draft' mode can be used to speed up compilation
+\documentclass[twoside,final]{hcmut-report}
+\usepackage{codespace}
+
+% Draft watermark
+% https://github.com/callegar/LaTeX-draftwatermark
+
+% Encodings
+\usepackage{gensymb,textcomp}
+
+% Better tables
+% Wide tables go to https://tex.stackexchange.com/q/332902
+\usepackage{array,longtable,multicol,multirow,siunitx,tabularx}
+
+% Better enum
+\usepackage{enumitem}
+
+% Graphics
+\usepackage{caption,float}
+
+% Add options for figures, like max width, framing, etc.
+\usepackage[export]{adjustbox}
+
+% References
+% Use \Cref{} instead of \ref{}
+\usepackage[nameinlink]{cleveref}
+
+% FOR DEMONSTRATION PURPOSES, REMOVE IN PRODUCTION
+\usepackage{mwe}
+
+\usepackage{xurl}
+\usepackage{hyperref}
+\Urlmuskip=0mu plus 1mu\relax
+
+% Sub-preambles
+% https://github.com/MartinScharrer/standalone
+
+% Configurations
+\coursename{Electrical Electronic Circuits}
+% \reporttype{Report type h}
+\title{Assignment Report}
+\advisor{& Phạm Công Thái &}
+\stuname{%
+  & Trần Văn Minh Triết & ID 2413603 \\
+  & Nguyễn Phúc Vĩnh & 2414001 \\
+}
+
+% Allow page breaks inside align* environment
+%\allowdisplaybreaks{}
+
+% Makes a lot of things blue, avoid at all costs
+%\everymath{\color{blue}}
+
+% Set depth of numbering for counters
+\AtBeginDocument{\counterwithin{lstlisting}{section}}
+
+% Rename some sections
+%\AtBeginDocument{\renewcommand*{\contentsname}{Contents}}
+%\AtBeginDocument{\renewcommand*{\refname}{References}}
+%\AtBeginDocument{\renewcommand*{\bibname}{References}}
+
+% Custom commands
+%\newcommand*\mean[1]{\bar{#1}}
+
+\begin{document}
+\coverpage%
+
+%\section*{Member list \& Workload}
+%\newcounter{memberrowno}
+%\setcounter{memberrowno}{0}
+%\begin{center}
+%  \begin{tabular}{>{\stepcounter{memberrowno}\thememberrowno}llcc}
+%    \toprule
+%    \multicolumn{1}{c}{\textbf{No.}} & \textbf{Full name} & \textbf{Student ID} & \textbf{Contribution} \\
+%    \midrule
+%                                     & h                  & xxxxxxx             & 100\%                       \\
+%                                     & h                  & xxxxxxx             & 100\%                       \\
+%    \bottomrule
+%  \end{tabular}
+%\end{center}
+%\clearpage
+
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings{}
+
+\clearpage
+\input{chapters/1_introduction.tex}
+\clearpage
+\input{chapters/2_hardware.tex}
+\clearpage
+\input{chapters/3_Altium.tex}
+\clearpage
+\input{chapters/4_PSpice.tex}
+\clearpage
+\input{chapters/5_Q&A.tex}
+\clearpage
+% \input{chapters/example/better-tables.tex}
+% \input{chapters/example/better-enum.tex}
+% \include{chapters/example/codespace.tex}
+% \include{chapters/example/figwidth.tex}
+
+\bibliographystyle{plain}
+\bibliography{refs/example.bib}
+\nocite{*}
+
+\end{document}
