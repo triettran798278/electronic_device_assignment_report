@@ -258,7 +258,9 @@ High negative voltage & Conducts in reverse, clamps voltage \\
 
 
 \subsubsection*{Objective}
-The objective of this circuit is to control \textbf{four 7-segment LED displays} using the \textbf{74HC595 shift register}, thereby reducing the number of I/O pins required from the microcontroller by applying the \textbf{multiplexing technique}.
+The circuit was designed and implemented to control four 7-segment LED displays using two 74HC595 shift registers. 
+Multiplexing was applied to reduce hardware complexity and the number of I/O connections to the microcontroller.
+
 
 \subsubsection*{Operating Principle}
 Each 7-segment display requires eight control signals corresponding to segments \textit{a, b, c, d, e, f, g} and the decimal point (\textit{dp}). Since a single 74HC595 provides only eight output pins, it is insufficient to drive four displays simultaneously.
@@ -270,7 +272,10 @@ To solve this problem, the following architecture is used:
     \item The displays are driven using the \textbf{multiplexing (scanning)} method, where only one display is enabled at a time, but the switching speed is fast enough to appear continuous to the human eye.
 \end{itemize}
 
-The two 74HC595 ICs are connected in a \textbf{daisy-chain configuration} and share the same control signals: \texttt{DATA}, \texttt{CLK}, and \texttt{LATCH}.
+The two 74HC595 ICs are connected in a \textbf{daisy-chain configuration}. 
+The serial data output (SDO) of the first IC is connected to the serial data input (SDI) of the second IC, 
+while both ICs share the same shift clock (SH\_CP) and latch clock (ST\_CP).
+
 
 \subsubsection*{Circuit Connections}
 \begin{itemize}
@@ -295,8 +300,33 @@ The microcontroller performs the following steps repeatedly:
 
 A sufficiently high scanning frequency ensures stable display output without visible flickering.
 
+\subsubsection*{Schematic and PCB Layout}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{graphics/7seg_sch.png}
+  \caption{Schematic of 7-segment display circuit using 74HC595}
+  \label{fig:7seg_sch}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{graphics/7seg_pcb_2d.png}
+  \caption{PCB layout of 7-segment display circuit using 74HC595}
+  \label{fig:7seg_pcb_2d}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{graphics/7seg_pcb_3d_top.png}
+  \caption{3D view of PCB layout for 7-segment display circuit using 74HC595}
+  \label{fig:7seg_pcb_3d_top}
+\end{figure}
 
 
-
-
-
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{graphics/7seg_pcb_3d_bottom.png}
+  \caption{3D view of PCB layout for 7-segment display circuit using 74HC595}
+  \label{fig:7seg_pcb_3d}
+\end{figure}
